@@ -1,0 +1,48 @@
+name: muxpi
+version: '0.1'
+summary: MuxPi software
+description: |
+  MuxPi software.
+grade: stable
+confinement: devmode
+base: core18
+# architectures: 
+#   - build-on: amd64
+#     run-on: armhf
+
+apps:
+  fota:
+    command: bin/fota
+  stm:
+    daemon: simple
+    command: bin/stm -serve
+    passthrough:
+      sockets:
+        stm-user:
+          listen-stream: $SNAP_DATA/run/stm-user.socket
+          socket-mode: 0660
+          socket-group: stm
+        stm:
+          listen-stream: $SNAP_DATA/run/stm.socket
+          socket-mode: 0660
+    plugs: [network, network-bind, daemon-notify]
+  muxpi-power:
+    daemon: oneshot
+    command: bin/muxpi-power on
+    stop-command: bin/muxpi-power off
+  screen:
+    command: usr/bin/screen
+
+parts:
+  muxpi:
+    plugin: go
+    source: .
+    go-importpath: github.com/SamsungSLAV/muxpi
+    override-build: |
+      snapcraftctl build
+      cp sw/nanopi/power/muxpi-power $SNAPCRAFT_PART_INSTALL/bin/
+  tools:
+    plugin: nil
+    stage-packages:
+      - screen
+    

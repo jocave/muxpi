@@ -1,2 +1,5 @@
 #Sphinx build directory
 doc/sphinx/build/
+parts/
+prime/
+stage/
